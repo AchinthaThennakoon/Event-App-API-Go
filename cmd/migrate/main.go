@@ -8,7 +8,6 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/sqlite3"
 	"github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/mattn/go-sqlite3"
 )
 
 func main() {
@@ -58,3 +57,4 @@ func main() {
 		log.Fatal("Invalid direction. Use 'up' or 'down'")
 	}
 }
+
