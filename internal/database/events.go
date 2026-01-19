@@ -14,3 +14,7 @@ type Event struct {
 	Date        string `json:"date" binding:"required,datetime=2006-01-02"`
 	Location    string `json:"location"`
 }
+
+func (e EventModel) Insert(event *Event) any {
+	panic("unimplemented")
+}
