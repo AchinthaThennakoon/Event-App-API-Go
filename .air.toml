@@ -4,7 +4,7 @@ tmp_dir = "tmp"
 [build]
 args_bin = []
 entrypoint = "./tmp/main.exe"
-cmd = "go build -o ./tmp/main.exe ./cmd/api"
+cmd = "$env:CGO_ENABLED='0'; go build -o ./tmp/main.exe ./cmd/api"
 delay = 1000
 exclude_dir = ["assets", "tmp", "vendor", "testdata"]
 exclude_file = []
