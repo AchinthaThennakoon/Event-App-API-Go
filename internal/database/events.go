@@ -1,6 +1,10 @@
 package database
 
-import "database/sql"
+import (
+	"context"
+	"database/sql"
+	"time"
+)
 
 type EventModel struct {
 	DB *sql.DB
@@ -15,6 +19,11 @@ type Event struct {
 	Location    string `json:"location"`
 }
 
-func (e EventModel) Insert(event *Event) any {
-	panic("unimplemented")
+func (m EventModel) Insert(event *Event) any {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := "INSERT INTO events (owner_id, name, description, date, location) VALUES ($1, $2, $3, $4, $5) RETURNING id"
+
+	return m.DB.QueryRowContext(ctx, query, event.OwnerID, event.Name, event.Description, event.Date, event.Location).Scan(&event.ID)
 }

@@ -42,4 +42,5 @@ require (
 	github.com/gin-gonic/gin v1.11.0
 	github.com/joho/godotenv v1.5.1
 	github.com/mattn/go-sqlite3 v1.14.22 // indirect
+	github.com/pelletier/go-toml v1.9.5
 )
