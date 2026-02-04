@@ -86,3 +86,16 @@ func (m EventModel) Delete(id int) any {
 	}
 	return nil
 }
+
+func (m EventModel) Update(event *Event) any {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := "UPDATE events SET owner_id = $1, name = $2, description = $3, date = $4, location = $5 WHERE id = $6"
+
+	_, err := m.DB.ExecContext(ctx, query, event.OwnerID, event.Name, event.Description, event.Date, event.Location, event.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
