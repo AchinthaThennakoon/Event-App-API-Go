@@ -24,3 +24,20 @@ func (m *AttendeeModel) Insert(attendee *Attendee) error {
 
 	return m.DB.QueryRowContext(ctx, query, attendee.EventID, attendee.UserID).Scan(&attendee.ID)
 }
+
+func (m *AttendeeModel) IsAttendeeExists(eventID, userID int) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := "SELECT COUNT(*) FROM attendees WHERE event_id = $1 AND user_id = $2"
+	var count int
+	err := m.DB.QueryRowContext(ctx, query, eventID, userID).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+// GetByAttendeeAndEvent retrieves an attendee by user ID and event ID
+
+// GetAttendeesByEventID retrieves all attendees for a specific event ID

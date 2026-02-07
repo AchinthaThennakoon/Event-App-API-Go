@@ -125,6 +125,17 @@ func (app *application) addAttendeeToEvent(c *gin.Context) {
 		return
 	}
 
+	//check if user is already an attendee of the event
+	isAttendeeExists, err := app.models.Attendees.IsAttendeeExists(eventID, userId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check attendee"})
+		return
+	}
+	if isAttendeeExists {
+		c.JSON(http.StatusConflict, gin.H{"error": "User is already an attendee of the event"})
+		return
+	}
+
 	var newAttendee database.Attendee
 	newAttendee.EventID = eventID
 	newAttendee.UserID = userId
@@ -134,3 +145,7 @@ func (app *application) addAttendeeToEvent(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Attendee added successfully"})
 }
+
+
+// get attendees of an event
+
