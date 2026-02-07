@@ -85,3 +85,41 @@ func (m *AttendeeModel) GetAttendeesByEventID(eventID int) ([]*User, error) {
 
 	return users, nil
 }
+
+func (m *AttendeeModel) Delete(eventID, userID int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := "DELETE FROM attendees WHERE event_id = $1 AND user_id = $2"
+	_, err := m.DB.ExecContext(ctx, query, eventID, userID)
+	return err
+}
+
+func (m *AttendeeModel) GetEventsByAttendee(userID int) ([]*Event, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT e.id, e.name, e.description
+		FROM attendees a
+		JOIN events e ON a.event_id = e.id
+		WHERE a.user_id = $1
+	`
+	rows, err := m.DB.QueryContext(ctx, query, userID)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var events []*Event
+	for rows.Next() {
+		var event Event
+		err := rows.Scan(&event.ID, &event.Name, &event.Description)
+		if err != nil {
+			return nil, err
+		}
+		events = append(events, &event)
+	}
+	return events, nil
+}
