@@ -57,8 +57,6 @@ func (app *application) updateEvent(c *gin.Context) {
 	// 	return
 	// }
 
-
-
 	// if err := app.models.Events.Update(&event); err != nil {
 	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update event"})
 	// 	return
@@ -106,23 +104,23 @@ func (app *application) addAttendeeToEvent(c *gin.Context) {
 	}
 
 	//retrieve attendee logic here
-	attendee, err := app.models.Users.GetByID(userId)
+	IsUserExists, err := app.models.Users.IsUserExists(userId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve user"})
 		return
 	}
-	if attendee == nil {
+	if !IsUserExists {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
-	
+
 	//retrieve event
-	event, err := app.models.Events.GetByID(eventID)
+	isEventExists, err := app.models.Events.IsEventExists(eventID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve event"})
 		return
 	}
-	if event == nil {
+	if !isEventExists {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
 		return
 	}

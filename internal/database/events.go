@@ -99,3 +99,18 @@ func (m EventModel) Update(event *Event) any {
 	}
 	return nil
 }
+
+func (m EventModel) IsEventExists(id int) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := "SELECT COUNT(*) FROM events WHERE id = $1"
+
+	var count int
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
+}

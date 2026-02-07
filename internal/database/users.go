@@ -40,3 +40,18 @@ func (m *UserModel) GetByID(id int) (*User, error) {
 	}
 	return &user, nil
 }
+
+func (m *UserModel) IsUserExists(id int) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := "SELECT COUNT(*) FROM users WHERE id = $1"
+
+	var count int
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
+}
