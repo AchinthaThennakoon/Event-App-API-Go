@@ -56,3 +56,32 @@ func (m *AttendeeModel) GetByEventAndAttendee(eventID, userID int) (*Attendee, e
 }
 
 // GetAttendeesByEventID retrieves all attendees for a specific event ID
+func (m *AttendeeModel) GetAttendeesByEventID(eventID int) ([]*User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT  u.id, u.name, u.email
+		FROM attendees a
+		JOIN users u ON a.user_id = u.id
+		WHERE a.event_id = $1
+	`
+	rows, err := m.DB.QueryContext(ctx, query, eventID)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var users []*User
+	for rows.Next() {
+		var user User
+		err := rows.Scan(&user.ID, &user.Name, &user.Email)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, &user)
+	}
+
+	return users, nil
+}

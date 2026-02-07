@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-	"os/user"
 	"rest-api-gin-go/internal/database"
 	"strconv"
 
@@ -174,4 +173,17 @@ func (app *application) GetByEventAndAttendee(c *gin.Context) {
 }
 
 // get attendees of an event
+func (app *application) GetAttendeesByEventID(c *gin.Context) {
+	eventID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid event ID"})
+		return
+	}
 
+	attendees, err := app.models.Attendees.GetAttendeesByEventID(eventID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve attendees"})
+		return
+	}
+	c.JSON(http.StatusOK, attendees)
+}
