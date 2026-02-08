@@ -55,3 +55,17 @@ func (m *UserModel) IsUserExists(id int) (bool, error) {
 
 	return count > 0, nil
 }
+
+func (m *UserModel) GetByEmail(email string) (*User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := "SELECT id, email, name, password FROM users WHERE email = $1"
+
+	var user User
+	err := m.DB.QueryRowContext(ctx, query, email).Scan(&user.ID, &user.Email, &user.Name, &user.Password)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}

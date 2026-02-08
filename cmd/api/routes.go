@@ -24,6 +24,7 @@ func (app *application) routes() http.Handler {
 		v1.GET("/events/attendees/:userId",app.GetEventsByAttendee)
 
 		v1.POST("/auth/register", app.registerUser)
+		v1.POST("/auth/login", app.loginUser)
 	}
 
 	return g
