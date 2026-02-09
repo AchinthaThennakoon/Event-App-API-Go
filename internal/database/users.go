@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"time"
+
+	"github.com/pelletier/go-toml/query"
 )
 
 type UserModel struct {
@@ -68,4 +70,26 @@ func (m *UserModel) GetByEmail(email string) (*User, error) {
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (m *UserModel) getUSer(query string, args ...interface{}) (*User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var user User
+	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&user.ID, &user.Email, &user.Name)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (m *UserModel) GetUserById(id int) (*User, error) {
+	query := "SELECT id, email, name FROM users WHERE id = $1"
+	return m.getUSer(query, id)
+}
+
+func (m *UserModel) GetUserByEmail(email string) (*User, error) {
+	query := "SELECT id, email, name FROM users WHERE email = $1"
+	return m.getUSer(query, email)
 }
