@@ -64,7 +64,7 @@ func (app *application) loginUser(c *gin.Context) {
 		return
 	}
 
-	user, err := app.models.Users.GetByEmail(login.Email)
+	user, err := app.models.Users.GetUserByEmail(login.Email)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
 		return
