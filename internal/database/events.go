@@ -60,7 +60,7 @@ func (m EventModel) GetAll() (any, any) {
 	return events, nil
 }
 
-func (m EventModel) GetByID(id int) (any, error) {
+func (m EventModel) GetByID(id int) (*Event, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 

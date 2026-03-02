@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"rest-api-gin-go/internal/database"
 	"strconv"
@@ -16,6 +17,12 @@ func (app *application) createEvent(c *gin.Context) {
 		return
 	}
 
+	user := app.GetUserFromContext(c)
+	if user == nil || user.ID == 0 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	event.OwnerID = user.ID
 	if err := app.models.Events.Insert(&event); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create event"})
 		return
@@ -72,6 +79,12 @@ func (app *application) deleteEvent(c *gin.Context) {
 		return
 	}
 
+	user := app.GetUserFromContext(c)
+	if user == nil || user.ID == 0 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
 	existingEvent, err := app.models.Events.GetByID(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve event"})
@@ -79,6 +92,13 @@ func (app *application) deleteEvent(c *gin.Context) {
 	}
 	if existingEvent == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
+		return
+	}
+
+	fmt.Printf("Existing Event Owner ID: %d, User ID: %d\n", existingEvent.OwnerID, user.ID)
+
+	if existingEvent.OwnerID != user.ID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You are not the creator of this event"})
 		return
 	}
 
