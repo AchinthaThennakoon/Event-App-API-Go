@@ -1,4 +1,13 @@
 definitions:
+  database.Attendee:
+    properties:
+      eventId:
+        type: integer
+      id:
+        type: integer
+      userId:
+        type: integer
+    type: object
   database.Event:
     properties:
       date:
@@ -23,6 +32,21 @@ info:
   title: Go Gin Rest API
   version: "1.0"
 paths:
+  /api/v1/event/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Returns event by ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/database.Event'
+      summary: Returns an event
+      tags:
+      - events
   /api/v1/events:
     get:
       consumes:
@@ -38,6 +62,126 @@ paths:
               $ref: '#/definitions/database.Event'
             type: array
       summary: Returns all events
+      tags:
+      - events
+    post:
+      consumes:
+      - application/json
+      description: Create a new event
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/database.Event'
+      summary: Create an event
+      tags:
+      - events
+  /api/v1/events/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes an event by ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      summary: Delete an event
+      tags:
+      - events
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing event
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/database.Event'
+      summary: Update an event
+      tags:
+      - events
+  /api/v1/events/{id}/attendees:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves list of attendees for a given event
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/database.Attendee'
+            type: array
+      summary: Get attendees for event
+      tags:
+      - events
+  /api/v1/events/{id}/attendees/{userId}:
+    delete:
+      consumes:
+      - application/json
+      description: Removes a user from an event's attendee list
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      summary: Remove attendee from event
+      tags:
+      - events
+    get:
+      consumes:
+      - application/json
+      description: Retrieves attendee info for given event and user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/database.Attendee'
+      summary: Get attendee by event & user
+      tags:
+      - events
+    post:
+      consumes:
+      - application/json
+      description: Adds a user as attendee to event
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      summary: Add attendee to event
+      tags:
+      - events
+  /api/v1/events/attendees/{userId}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves events a user is attending
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/database.Event'
+            type: array
+      summary: Get events by attendee
       tags:
       - events
 securityDefinitions:
