@@ -37,6 +37,12 @@ paths:
       consumes:
       - application/json
       description: Returns event by ID
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -83,6 +89,12 @@ paths:
       consumes:
       - application/json
       description: Deletes an event by ID
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -112,6 +124,12 @@ paths:
       consumes:
       - application/json
       description: Retrieves list of attendees for a given event
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -129,6 +147,17 @@ paths:
       consumes:
       - application/json
       description: Removes a user from an event's attendee list
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -143,6 +172,17 @@ paths:
       consumes:
       - application/json
       description: Retrieves attendee info for given event and user
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -157,6 +197,17 @@ paths:
       consumes:
       - application/json
       description: Adds a user as attendee to event
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -172,6 +223,12 @@ paths:
       consumes:
       - application/json
       description: Retrieves events a user is attending
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
       produces:
       - application/json
       responses:

@@ -68,6 +68,7 @@ func (app *application) getAllEvents(c *gin.Context) {
 //	@Produce json
 //	@Success 200 {object} database.Event
 //	@Router /api/v1/event/{id} [get]
+//	@Param id path int true "Event ID"
 func (app *application) getEvent(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -111,6 +112,7 @@ func (app *application) updateEvent(c *gin.Context) {
 //
 //	@Summary Delete an event
 //	@Description Deletes an event by ID
+//	@Param id path int true "Event ID"
 //	@Tags events
 //	@Accept json
 //	@Produce json
@@ -159,6 +161,8 @@ func (app *application) deleteEvent(c *gin.Context) {
 //
 //	@Summary Add attendee to event
 //	@Description Adds a user as attendee to event
+//	@Param id path int true "Event ID"
+//	@Param userId path int true "User ID"
 //	@Tags events
 //	@Accept json
 //	@Produce json
@@ -171,14 +175,30 @@ func (app *application) addAttendeeToEvent(c *gin.Context) {
 		return
 	}
 
-	userId, err := strconv.Atoi(c.Param("userId"))
+	attendeeID, err := strconv.Atoi(c.Param("userId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 		return
 	}
 
+	//only event owner can add attendees
+	user := app.GetUserFromContext(c)
+	if user == nil || user.ID == 0 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	existingEvent, err := app.models.Events.GetByID(eventID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve event"})
+		return
+	}
+	if existingEvent.OwnerID != user.ID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You don't have permission to add attendees to this event"})
+		return
+	}
+
 	//retrieve attendee logic here
-	IsUserExists, err := app.models.Users.IsUserExists(userId)
+	IsUserExists, err := app.models.Users.IsUserExists(attendeeID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve user"})
 		return
@@ -200,7 +220,7 @@ func (app *application) addAttendeeToEvent(c *gin.Context) {
 	}
 
 	//check if user is already an attendee of the event
-	isAttendeeExists, err := app.models.Attendees.IsAttendeeExists(eventID, userId)
+	isAttendeeExists, err := app.models.Attendees.IsAttendeeExists(eventID, attendeeID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check attendee"})
 		return
@@ -212,7 +232,7 @@ func (app *application) addAttendeeToEvent(c *gin.Context) {
 
 	var newAttendee database.Attendee
 	newAttendee.EventID = eventID
-	newAttendee.UserID = userId
+	newAttendee.UserID = attendeeID
 	if err := app.models.Attendees.Insert(&newAttendee); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add attendee to event"})
 		return
@@ -225,6 +245,8 @@ func (app *application) addAttendeeToEvent(c *gin.Context) {
 //
 //	@Summary Get attendee by event & user
 //	@Description Retrieves attendee info for given event and user
+//	@Param id path int true "Event ID"
+//	@Param userId path int true "User ID"
 //	@Tags events
 //	@Accept json
 //	@Produce json
@@ -260,6 +282,7 @@ func (app *application) GetByEventAndAttendee(c *gin.Context) {
 //
 //	@Summary Get attendees for event
 //	@Description Retrieves list of attendees for a given event
+//	@Param id path int true "Event ID"
 //	@Tags events
 //	@Accept json
 //	@Produce json
@@ -284,6 +307,8 @@ func (app *application) GetAttendeesByEventID(c *gin.Context) {
 //
 //	@Summary Remove attendee from event
 //	@Description Removes a user from an event's attendee list
+//	@Param id path int true "Event ID"
+//	@Param userId path int true "User ID"
 //	@Tags events
 //	@Accept json
 //	@Produce json
@@ -324,6 +349,7 @@ func (app *application) removeAttendeeFromEvent(c *gin.Context) {
 //
 //	@Summary Get events by attendee
 //	@Description Retrieves events a user is attending
+//	@Param userId path int true "User ID"
 //	@Tags events
 //	@Accept json
 //	@Produce json
