@@ -19,8 +19,6 @@ func (app *application) routes() http.Handler {
 		v1.GET("/event/:id", app.getEvent)
 
 		// v1.GET("/events/:id/attendees/:userId", app.GetByEventAndAttendee)
-		v1.GET("/events/:id/attendees", app.GetAttendeesByEventID)
-		v1.GET("/events/attendees/:userId", app.GetEventsByAttendee)
 
 		v1.POST("/auth/register", app.registerUser)
 		v1.POST("/auth/login", app.loginUser)
@@ -33,6 +31,8 @@ func (app *application) routes() http.Handler {
 		authGroup.PUT("/events/:id", app.updateEvent)
 		authGroup.DELETE("/events/:id", app.deleteEvent)
 
+		authGroup.GET("/events/:id/attendees", app.GetAttendeesByEventID)
+		authGroup.GET("/events/attendees/:userId", app.GetEventsByAttendee)
 		authGroup.POST("/events/:id/attendees/:userId", app.addAttendeeToEvent)
 		authGroup.DELETE("/events/:id/attendees/:userId", app.removeAttendeeFromEvent)
 
