@@ -16,6 +16,7 @@ import (
 //	@Tags events
 //	@Accept json
 //	@Produce json
+//	@Security BearerAuth
 //	@Success 201 {object} database.Event
 //	@Router /api/v1/events [post]
 func (app *application) createEvent(c *gin.Context) {
@@ -87,25 +88,54 @@ func (app *application) getEvent(c *gin.Context) {
 
 // updateEvent updates an event
 //
-//	@Summary Update an event
-//	@Description Updates an existing event
-//	@Tags events
-//	@Accept json
-//	@Produce json
-//	@Success 200 {object} database.Event
-//	@Router /api/v1/events/{id} [put]
+//		@Summary Update an event
+//		@Description Updates an existing event
+//		@Tags events
+//		@Accept json
+//		@Produce json
+//		@Security BearerAuth
+//		@Success 200 {object} database.Event
+//		@Router /api/v1/events/{id} [put]
+//	 @Param id path int true "Event ID"
+//	 @Param event body database.Event true "Event data"
 func (app *application) updateEvent(c *gin.Context) {
-	// var event database.Event
-	// if err := c.ShouldBindJSON(&event); err != nil {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	// 	return
-	// }
+	eventId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid event ID"})
+		return
+	}
 
-	// if err := app.models.Events.Update(&event); err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update event"})
-	// 	return
-	// }
-	// c.JSON(http.StatusOK, event)
+	//check if event exists and if user is owner of the event
+	user := app.GetUserFromContext(c)
+	if user == nil || user.ID == 0 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	existingEvent, err := app.models.Events.GetByID(eventId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve event"})
+		return
+	}
+	if existingEvent == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
+		return
+	}
+	if existingEvent.OwnerID != user.ID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You are not the owner of this event"})
+		return
+	}
+
+	var event database.Event
+	if err := c.ShouldBindJSON(&event); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := app.models.Events.Update(&event); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update event"})
+		return
+	}
+	c.JSON(http.StatusOK, event)
 }
 
 // deleteEvent deletes an event
@@ -116,6 +146,7 @@ func (app *application) updateEvent(c *gin.Context) {
 //	@Tags events
 //	@Accept json
 //	@Produce json
+//	@Security BearerAuth
 //	@Success 200 {object} object
 //	@Router /api/v1/events/{id} [delete]
 func (app *application) deleteEvent(c *gin.Context) {
@@ -166,6 +197,7 @@ func (app *application) deleteEvent(c *gin.Context) {
 //	@Tags events
 //	@Accept json
 //	@Produce json
+//	@Security BearerAuth
 //	@Success 200 {object} object
 //	@Router /api/v1/events/{id}/attendees/{userId} [post]
 func (app *application) addAttendeeToEvent(c *gin.Context) {

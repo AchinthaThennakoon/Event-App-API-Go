@@ -81,6 +81,8 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/database.Event'
+      security:
+      - BearerAuth: []
       summary: Create an event
       tags:
       - events
@@ -102,6 +104,8 @@ paths:
           description: OK
           schema:
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete an event
       tags:
       - events
@@ -109,6 +113,18 @@ paths:
       consumes:
       - application/json
       description: Updates an existing event
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Event data
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/database.Event'
       produces:
       - application/json
       responses:
@@ -116,6 +132,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/database.Event'
+      security:
+      - BearerAuth: []
       summary: Update an event
       tags:
       - events
@@ -215,6 +233,8 @@ paths:
           description: OK
           schema:
             type: object
+      security:
+      - BearerAuth: []
       summary: Add attendee to event
       tags:
       - events
